@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sistem Bel Otomatis</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header --> 
+  <div class="header">
+    <div>
+      <div class="title">Sistem Bel Otomatis</div>
+      <div class="subtitle">ESP32 + WebServer + DFPlayer Mini</div>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+      <div class="conn-dot" id="connDot" style="background:#e24b4a;box-shadow:none"></div>
+      <span class="conn-lbl" id="connLbl">Menghubungkan...</span>
+    </div>
+    
+    
+  </div>
+  <div class="title1">
+        <div class="title2"> Pondok Pesantren Al-Hidayah</div>
+      </div> 
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="gotoTab('dashboard')">Dashboard</button>
+    <button class="tab" onclick="gotoTab('jadwal')">Jadwal</button>
+    <button class="tab" onclick="gotoTab('kegiatan')">Kegiatan</button>
+    <button class="tab" onclick="gotoTab('audio')">Audio</button>
+    <button class="tab" onclick="gotoTab('json')">JSON</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="panel active" id="tab-dashboard">
+    <div class="clock-bar">
+      <div>
+        <div class="clock-time" id="clockTime">00:00:00</div>
+        <div class="clock-status">
+          <div class="conn-dot" style="width:6px;height:6px;background:var(--green)"></div>
+          <span style="font-size:11px;color:var(--text2)">Waktu perangkat (ESP32 NTP)</span>
+        </div>
+      </div>
+      <div class="clock-right">
+        <div class="clock-day" id="clockDay">-</div>
+        <div class="clock-date" id="clockDate">-</div>
+        <div style="margin-top:6px;display:flex;align-items:center;gap:5px;justify-content:flex-end">
+          <div style="width:6px;height:6px;border-radius:50%;background:#4b5563" id="ampliDot"></div>
+          <span style="font-size:11px;color:var(--text2)" id="ampliLbl">Amplifier OFF</span>
+        </div>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="metric"><div class="lbl">Sudah berbunyi</div><div class="val" id="mDone">-</div></div>
+      <div class="metric" id="mBunyiCard"><div class="lbl">Sedang bunyi</div><div class="val" id="mBunyi">-</div></div>
+      <div class="metric"><div class="lbl">Menunggu</div><div class="val" id="mLeft">-</div></div>
+    </div>
+    <div class="next-card" id="nextCard">
+      <div style="font-size:11px;color:var(--blue-text);opacity:.8;margin-bottom:4px">Bel berikutnya</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-size:26px;font-weight:500;color:var(--blue-text);font-family:var(--mono)" id="nTime">--:--</div>
+        <div>
+          <div style="font-size:13px;color:var(--blue-text)" id="nLabel">-</div>
+          <div style="font-size:11px;color:var(--blue-text);opacity:.75" id="nTrack">-</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:11px;color:var(--blue-text);opacity:.75;margin-bottom:4px" id="nCountdown">-</div>
+          <button class="btn-ring" onclick="ringNow()">Bunyikan sekarang</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-title" style="margin-bottom:10px">Jadwal hari ini</div>
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:60px">Jam</th><th>Keterangan</th>
+          <th style="width:130px">Track</th><th style="width:80px">Status</th>
+        </tr></thead>
+        <tbody id="todayTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Jadwal -->
+  <div class="panel" id="tab-jadwal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;flex-wrap:wrap;gap:8px">
+      <div style="font-size:15px;font-weight:500">Edit jadwal per hari</div>
+      <div class="row">
+        <button class="btn btn-sm" onclick="addEntry()">+ Tambah bel</button>
+        <button class="btn btn-p btn-sm" onclick="saveAll()">Simpan semua</button>
+      </div>
+    </div>
+    <div class="day-tabs" id="dayTabs"></div>
+    <div class="copy-row">
+      <span style="font-size:12px;color:var(--text2)">Salin ke:</span>
+      <select id="copyTarget" style="width:120px;font-size:12px;padding:4px 8px"><option value="">Pilih hari...</option></select>
+      <button class="btn btn-sm" onclick="copyToDay()">Salin jadwal</button>
+      <button class="btn btn-sm btn-d" onclick="clearDay()">Hapus semua</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl" style="table-layout:fixed">
+        <thead><tr>
+          <th style="width:90px;padding:8px">Jam</th>
+          <th style="width:140px">Keterangan</th>
+          <th style="width:120px">Track audio</th>
+          <th style="width:50px;text-align:center">Aktif</th>
+          <th style="width:36px"></th>
+        </tr></thead>
+        <tbody id="editTbody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:.75rem;font-size:11px;color:var(--text2)">Data dikirim ke ESP32 via <span style="font-family:var(--mono);font-size:11px">/save-jadwal</span></div>
+  </div>
+
+  <!-- Kegiatan -->
+  <div class="panel" id="tab-kegiatan">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;flex-wrap:wrap;gap:8px">
+      <div style="font-size:15px;font-weight:500">Daftar Kegiatan</div>
+      <div class="row">
+        <button class="btn btn-sm" onclick="addKegiatan()">+ Tambah</button>
+        <button class="btn btn-p btn-sm" onclick="saveKegiatan()">Simpan ke ESP32</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:.875rem">
+      Kegiatan ini digunakan sebagai pilihan label pada tab Jadwal. Data disimpan di <span style="font-family:var(--mono);font-size:11px">/kegiatan.json</span> di SPIFFS.
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="tbl" style="table-layout:fixed">
+        <thead><tr>
+          <th style="width:40px;padding:8px;text-align:center">#</th>
+          <th style="padding:8px">Nama Kegiatan</th>
+          <th style="width:60px"></th>
+        </tr></thead>
+        <tbody id="kegiatanTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Audio -->
+  <div class="panel" id="tab-audio">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+      <div>
+        <div class="sec-title">DFPlayer Mini</div>
+        <div class="dfplayer" id="dfPanel"></div>
+        <div style="margin-top:8px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:4px">
+            <span id="tNow">0:00</span><span id="tTot">0:00</span>
+          </div>
+          <div style="height:3px;background:#1f2937;border-radius:2px;overflow:hidden">
+            <div style="height:100%;background:var(--blue);border-radius:2px;transition:width .3s" id="progBar"></div>
+          </div>
+        </div>
+        <div style="margin-top:8px"><button class="btn btn-sm" onclick="stopAudio()">&#9632; Stop</button></div>
+      </div>
+      <div>
+        <div class="sec-title">Pengaturan audio</div>
+        <div class="card">
+          <div style="margin-bottom:12px">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Volume (0–100)</div>
+            <div class="row">
+              <input type="range" min="0" max="100" value="20" step="1" id="volR" style="flex:1" oninput="document.getElementById('volN').textContent=this.value">
+              <span style="font-size:13px;font-weight:500;min-width:22px" id="volN">20</span>
+            </div>
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Durasi bel (detik)</div>
+            <div class="row">
+              <input type="range" min="1" max="30" value="5" step="1" id="durR" style="flex:1" oninput="document.getElementById('durN').textContent=this.value+'s'">
+              <span style="font-size:13px;font-weight:500;min-width:28px" id="durN">5s</span>
+            </div>
+          </div>
+          <button class="btn btn-p" style="width:100%" onclick="applyVolume()">Terapkan volume</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JSON -->
+  <div class="panel" id="tab-json">
+    <div style="font-size:15px;font-weight:500;margin-bottom:1rem">Backup & Data Jadwal</div>
+    <div class="card" style="margin-bottom:.875rem;border-color:#2d4a7a">
+      <div class="sec-title" style="color:var(--amber-text)">Backup & Restore — Sebelum Upload SPIFFS</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:.875rem;line-height:1.7">
+        Unduh backup sebelum upload SPIFFS ulang. Setelah upload selesai, gunakan Restore untuk memulihkan data.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-sm" style="border-color:var(--amber-text);color:var(--amber-text)" onclick="downloadBackup()">Unduh backup (.json)</button>
+        <div>
+          <button class="btn btn-sm btn-p" onclick="document.getElementById('restoreFile').click()">Restore dari file...</button>
+          <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreBackup(this)">
+        </div>
+        <span style="font-size:11px;color:var(--text2)" id="restoreStatus"></span>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="sec-title">Pratinjau JSON (format jadwal.json)</div>
+      <div class="json-box" id="jsonBox"></div>
+    </div>
+    <div class="row" style="margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <button class="btn" onclick="cpJSON()">Salin JSON</button>
+      <button class="btn" onclick="dlJSON()">Unduh jadwal.json</button>
+      <button class="btn btn-p" onclick="pushJSON()">Kirim ke ESP32</button>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
