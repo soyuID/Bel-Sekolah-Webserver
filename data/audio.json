@@ -1,0 +1,67 @@
+[
+  {
+    "name": "Bangun tidur",
+    "file": "001.mp3",
+    "dur": 144
+  },
+  {
+    "name": "Sarapan",
+    "file": "002.mp3",
+    "dur": 119
+  },
+  {
+    "name": "Sholat dhuha",
+    "file": "003.mp3",
+    "dur": 114
+  },
+  {
+    "name": "masuk sekolah",
+    "file": "004.mp3",
+    "dur": 108
+  },
+  {
+    "name": "istirahat",
+    "file": "005.mp3",
+    "dur": 76
+  },
+  {
+    "name": "ganti pelajaran",
+    "file": "006.mp3",
+    "dur": 53
+  },
+  {
+    "name": "masuk skelas",
+    "file": "007.mp3",
+    "dur": 79
+  },
+  {
+    "name": "selesa sekolah",
+    "file": "008.mp3",
+    "dur": 83
+  },
+  {
+    "name": "makan siang",
+    "file": "009.mp3",
+    "dur": 109
+  },
+  {
+    "name": "bangun tidur siang",
+    "file": "010.mp3",
+    "dur": 99
+  },
+  {
+    "name": "makan sore",
+    "file": "011.mp3",
+    "dur": 108
+  },
+  {
+    "name": "sholat maghrib",
+    "file": "012.mp3",
+    "dur": 121
+  },
+  {
+    "name": "tidur malam",
+    "file": "013.mp3",
+    "dur": 134
+  }
+]

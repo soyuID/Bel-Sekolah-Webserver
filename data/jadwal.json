@@ -1,0 +1,12 @@
+{
+  "Senin": [
+    {"jam":"07:00","kegiatan":"Masuk","audio":1},
+    {"jam":"12:00","kegiatan":"Istirahat","audio":2}
+  ],
+  "Selasa": [],
+  "Rabu": [],
+  "Kamis": [],
+  "Jumat": [],
+  "Sabtu": [],
+  "Minggu": []
+}
